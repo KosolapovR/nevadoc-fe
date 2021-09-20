@@ -1,0 +1,26 @@
+.appNavItem, .appNavItemActive{
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.appNavItemActive{
+    background-color: #444c4c;
+    margin-bottom: 4px;
+    color: rgba(226, 226, 226, 0.85);
+}
+
+.appNavItem:hover, .appNavItemActive:hover{
+    cursor: pointer;
+    background-color: #344040;
+    transition: background-color ease-in-out 150ms;
+    color: rgba(226, 226, 226, 0.85);
+
+}
+
+.appNavItemLink{
+    color: rgba(226, 226, 226, 0.85);
+}

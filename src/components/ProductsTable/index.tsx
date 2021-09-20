@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import * as React from "react";
 import clsx from "clsx";
 import { withStyles, WithStyles } from "@mui/styles";
 import { Theme, createTheme } from "@mui/material/styles";
@@ -11,13 +11,6 @@ import {
   TableCellRenderer,
   TableHeaderProps,
 } from "react-virtualized";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import {
-  Product,
-  requestProductsAsync,
-  selectProducts,
-} from "../../features/counter/productsSlice";
-import { Box, CircularProgress } from "@mui/material";
 
 const styles = (theme: Theme) =>
   ({
@@ -70,7 +63,7 @@ interface MuiVirtualizedTableProps extends WithStyles<typeof styles> {
   headerHeight?: number;
   onRowClick?: () => void;
   rowCount: number;
-  rowGetter: (row: Row) => Product;
+  rowGetter: (row: Row) => Data;
   rowHeight?: number;
 }
 
@@ -179,74 +172,84 @@ const VirtualizedTable = withStyles(styles, { defaultTheme })(
   MuiVirtualizedTable
 );
 
-function ProductsPage() {
-  const products = useAppSelector(selectProducts);
-  const dispatch = useAppDispatch();
+// ---
 
-  useEffect(() => {
-    dispatch(requestProductsAsync());
-  }, []);
+interface Data {
+  calories: number;
+  carbs: number;
+  dessert: string;
+  fat: number;
+  id: number;
+  protein: number;
+}
+type Sample = [string, number, number, number, number];
 
+const sample: readonly Sample[] = [
+  ["Frozen yoghurt", 159, 6.0, 24, 4.0],
+  ["Ice cream sandwich", 237, 9.0, 37, 4.3],
+  ["Eclair", 262, 16.0, 24, 6.0],
+  ["Cupcake", 305, 3.7, 67, 4.3],
+  ["Gingerbread", 356, 16.0, 49, 3.9],
+];
+
+function createData(
+  id: number,
+  dessert: string,
+  calories: number,
+  fat: number,
+  carbs: number,
+  protein: number
+): Data {
+  return { id, dessert, calories, fat, carbs, protein };
+}
+
+const rows: Data[] = [];
+
+for (let i = 0; i < 200; i += 1) {
+  const randomSelection = sample[Math.floor(Math.random() * sample.length)];
+  rows.push(createData(i, ...randomSelection));
+}
+
+function ReactVirtualizedTable() {
   return (
-    <Paper style={{ height: "100%", width: "100%" }}>
-      {products.length > 0 ? (
-        <VirtualizedTable
-          rowCount={products.length}
-          rowGetter={({ index }) => products[index]}
-          columns={[
-            {
-              width: 100,
-              label: "Seller",
-              dataKey: "seller",
-            },
-            {
-              width: 380,
-              label: "Pattern",
-              dataKey: "pattern",
-            },
-            {
-              width: 200,
-              label: "Name",
-              dataKey: "name",
-            },
-            {
-              width: 80,
-              label: "Size",
-              dataKey: "size",
-            },
-            {
-              width: 80,
-              label: "Color",
-              dataKey: "color",
-            },
-            {
-              width: 80,
-              label: "Material",
-              dataKey: "material",
-            },
-            {
-              width: 80,
-              label: "Sleeve",
-              dataKey: "sleeve",
-            },
-            {
-              width: 80,
-              label: "Print",
-              dataKey: "print",
-            },
-          ]}
-        />
-      ) : (
-        <Box
-          style={{ width: "100%", height: "100%", display: "flex" }}
-          alignItems={"center"}
-          justifyContent={"center"}
-        >
-          <CircularProgress />
-        </Box>
-      )}
+    <Paper style={{ height: 400, width: "100%" }}>
+      <VirtualizedTable
+        rowCount={rows.length}
+        rowGetter={({ index }) => rows[index]}
+        columns={[
+          {
+            width: 200,
+            label: "Dessert",
+            dataKey: "dessert",
+          },
+          {
+            width: 120,
+            label: "Calories\u00A0(g)",
+            dataKey: "calories",
+            numeric: true,
+          },
+          {
+            width: 120,
+            label: "Fat\u00A0(g)",
+            dataKey: "fat",
+            numeric: true,
+          },
+          {
+            width: 120,
+            label: "Carbs\u00A0(g)",
+            dataKey: "carbs",
+            numeric: true,
+          },
+          {
+            width: 120,
+            label: "Protein\u00A0(g)",
+            dataKey: "protein",
+            numeric: true,
+          },
+        ]}
+      />
     </Paper>
   );
 }
 
-export default ProductsPage;
+export default ReactVirtualizedTable;
