@@ -1,3 +1,3 @@
-import * as ProductsTable from "./ProductsTable";
+import SimpleTable from "./SimpleTable";
 
-export { ProductsTable };
+export { SimpleTable };

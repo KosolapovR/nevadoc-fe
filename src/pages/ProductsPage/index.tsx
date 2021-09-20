@@ -16,7 +16,7 @@ import {
   Product,
   requestProductsAsync,
   selectProducts,
-} from "../../features/counter/productsSlice";
+} from "../../features/products/productsSlice";
 import { Box, CircularProgress } from "@mui/material";
 
 const styles = (theme: Theme) =>
