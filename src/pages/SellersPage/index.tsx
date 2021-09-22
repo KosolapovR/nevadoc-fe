@@ -2,39 +2,39 @@ import React, { useCallback, useEffect } from "react";
 import { SimpleTable } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-  deleteSizeAsync,
-  postSizeAsync,
-  requestSizesAsync,
-  selectSizes,
-  updateSizeAsync,
-} from "../../features/sizes/sizesSlice";
+  deleteSellerAsync,
+  postSellerAsync,
+  requestSellersAsync,
+  selectSellers,
+  updateSellerAsync,
+} from "../../features/sellers/sellersSlice";
 import { CreateReq, UpdateReq } from "../../types";
 
-function SizesPage() {
-  const sizes = useAppSelector(selectSizes);
+function SellersPage() {
+  const sellers = useAppSelector(selectSellers);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(requestSizesAsync());
+    dispatch(requestSellersAsync());
   }, [dispatch]);
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postSizeAsync(data));
+      dispatch(postSellerAsync(data));
     },
     [dispatch]
   );
 
   const handleEditItem = useCallback(
     (data: UpdateReq | object) => {
-      dispatch(updateSizeAsync(data as UpdateReq));
+      dispatch(updateSellerAsync(data as UpdateReq));
     },
     [dispatch]
   );
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteSizeAsync(id));
+      dispatch(deleteSellerAsync(id));
     },
     [dispatch]
   );
@@ -42,15 +42,16 @@ function SizesPage() {
   return (
     <div>
       <SimpleTable
-        rows={sizes}
+        rows={sellers}
+        columns={["engName", "ruName"]}
         onAddItem={handleAddItem}
         onEditItem={handleEditItem}
         onDeleteItem={handleDeleteItem}
-        addFormTitle="Добавление размеров"
-        editFormTitle="Редактирование размеров"
+        addFormTitle="Добавление поставщика"
+        editFormTitle="Редактирование поставщика"
       />
     </div>
   );
 }
 
-export default SizesPage;
+export default SellersPage;

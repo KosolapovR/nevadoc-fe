@@ -2,39 +2,39 @@ import React, { useCallback, useEffect } from "react";
 import { SimpleTable } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-  deleteSizeAsync,
-  postSizeAsync,
-  requestSizesAsync,
-  selectSizes,
-  updateSizeAsync,
-} from "../../features/sizes/sizesSlice";
+  deleteStockAsync,
+  postStockAsync,
+  requestStocksAsync,
+  selectStocks,
+  updateStockAsync,
+} from "../../features/stocks/stocksSlice";
 import { CreateReq, UpdateReq } from "../../types";
 
-function SizesPage() {
-  const sizes = useAppSelector(selectSizes);
+function StocksPage() {
+  const stocks = useAppSelector(selectStocks);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(requestSizesAsync());
+    dispatch(requestStocksAsync());
   }, [dispatch]);
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postSizeAsync(data));
+      dispatch(postStockAsync(data));
     },
     [dispatch]
   );
 
   const handleEditItem = useCallback(
     (data: UpdateReq | object) => {
-      dispatch(updateSizeAsync(data as UpdateReq));
+      dispatch(updateStockAsync(data as UpdateReq));
     },
     [dispatch]
   );
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteSizeAsync(id));
+      dispatch(deleteStockAsync(id));
     },
     [dispatch]
   );
@@ -42,15 +42,16 @@ function SizesPage() {
   return (
     <div>
       <SimpleTable
-        rows={sizes}
+        rows={stocks}
+        columns={["engName", "ruName"]}
         onAddItem={handleAddItem}
         onEditItem={handleEditItem}
         onDeleteItem={handleDeleteItem}
-        addFormTitle="Добавление размеров"
-        editFormTitle="Редактирование размеров"
+        addFormTitle="Добавление склада"
+        editFormTitle="Редактирование склада"
       />
     </div>
   );
 }
 
-export default SizesPage;
+export default StocksPage;

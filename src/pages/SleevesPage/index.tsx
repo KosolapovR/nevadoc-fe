@@ -2,55 +2,55 @@ import React, { useCallback, useEffect } from "react";
 import { SimpleTable } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-  deleteMaterialAsync,
-  postMaterialAsync,
-  requestMaterialsAsync,
-  selectMaterials,
-  updateMaterialAsync,
-} from "../../features/materials/materialsSlice";
+  deleteSleeveAsync,
+  postSleeveAsync,
+  requestSleevesAsync,
+  selectSleeves,
+  updateSleeveAsync,
+} from "../../features/sleeves/sleevesSlice";
 import { CreateReq, UpdateReq } from "../../types";
 
-function MaterialsPage() {
-  const materials = useAppSelector(selectMaterials);
+function SleevesPage() {
+  const sleeves = useAppSelector(selectSleeves);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(requestMaterialsAsync());
+    dispatch(requestSleevesAsync());
   }, [dispatch]);
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postMaterialAsync(data));
+      dispatch(postSleeveAsync(data));
     },
     [dispatch]
   );
 
   const handleEditItem = useCallback(
     (data: UpdateReq | object) => {
-      dispatch(updateMaterialAsync(data as UpdateReq));
+      dispatch(updateSleeveAsync(data as UpdateReq));
     },
     [dispatch]
   );
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteMaterialAsync(id));
+      dispatch(deleteSleeveAsync(id));
     },
-    [dispatch, deleteMaterialAsync]
+    [dispatch]
   );
 
   return (
     <div>
       <SimpleTable
-        rows={materials}
+        rows={sleeves}
         onAddItem={handleAddItem}
         onEditItem={handleEditItem}
         onDeleteItem={handleDeleteItem}
-        addFormTitle="Добавление материала"
-        editFormTitle="Редактирование материала"
+        addFormTitle="Добавление длины рукава"
+        editFormTitle="Редактирование длины рукава"
       />
     </div>
   );
 }
 
-export default MaterialsPage;
+export default SleevesPage;

@@ -4,91 +4,91 @@ import axios from "axios";
 import { URLS } from "../../api";
 import { CreateReq, UpdateReq } from "../../types";
 
-export interface Material {
+export interface Print {
   id: string;
   value: string;
 }
 
-export interface MaterialsState {
-  data: Material[];
+export interface PrintsState {
+  data: Print[];
   status: "idle" | "loading" | "failed";
 }
 
-const initialState: MaterialsState = {
+const initialState: PrintsState = {
   data: [],
   status: "idle",
 };
 
-export const requestMaterialsAsync = createAsyncThunk(
-  "materials/fetchMaterials",
+export const requestPrintsAsync = createAsyncThunk(
+  "prints/fetchPrints",
   async () => {
-    const response = await axios.get(URLS.getMaterials());
+    const response = await axios.get(URLS.getPrints());
     return response?.data?.data;
   }
 );
 
-export const postMaterialAsync = createAsyncThunk(
-  "materials/postMaterial",
+export const postPrintAsync = createAsyncThunk(
+  "prints/postPrint",
   async (request: CreateReq) => {
-    const response = await axios.post(URLS.getMaterials(), request);
+    const response = await axios.post(URLS.getPrints(), request);
     return response?.data?.data;
   }
 );
 
-export const updateMaterialAsync = createAsyncThunk(
-  "materials/updateMaterial",
+export const updatePrintAsync = createAsyncThunk(
+  "prints/updatePrint",
   async (request: UpdateReq) => {
-    const response = await axios.put(URLS.getMaterials(request.id), request);
+    const response = await axios.put(URLS.getPrints(request.id), request);
     return response?.data?.data;
   }
 );
 
-export const deleteMaterialAsync = createAsyncThunk(
-  "materials/deleteMaterial",
+export const deletePrintAsync = createAsyncThunk(
+  "prints/deletePrint",
   async (id: string) => {
-    const response = await axios.delete(URLS.getMaterials(id));
+    const response = await axios.delete(URLS.getPrints(id));
     return response?.data?.data;
   }
 );
 
-export const materialsSlice = createSlice({
-  name: "material",
+export const printsSlice = createSlice({
+  name: "print",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(requestMaterialsAsync.pending, (state) => {
+      .addCase(requestPrintsAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(requestMaterialsAsync.fulfilled, (state, action) => {
+      .addCase(requestPrintsAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data = action.payload;
       })
-      .addCase(postMaterialAsync.pending, (state) => {
+      .addCase(postPrintAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(postMaterialAsync.fulfilled, (state, action) => {
+      .addCase(postPrintAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data.push(action.payload);
       })
-      .addCase(updateMaterialAsync.pending, (state) => {
+      .addCase(updatePrintAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(updateMaterialAsync.fulfilled, (state, action) => {
+      .addCase(updatePrintAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Material) => item.id === action.payload.id
+          (item: Print) => item.id === action.payload.id
         );
 
         state.data[index] = action.payload;
       })
-      .addCase(deleteMaterialAsync.pending, (state, action) => {
+      .addCase(deletePrintAsync.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(deleteMaterialAsync.fulfilled, (state, action) => {
+      .addCase(deletePrintAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Material) => item.id === action.meta.arg
+          (item: Print) => item.id === action.meta.arg
         );
         if (index > -1) {
           state.data.splice(index, 1);
@@ -97,6 +97,6 @@ export const materialsSlice = createSlice({
   },
 });
 
-export const {} = materialsSlice.actions;
-export const selectMaterials = (state: RootState) => state.materials.data;
-export default materialsSlice.reducer;
+export const {} = printsSlice.actions;
+export const selectPrints = (state: RootState) => state.prints.data;
+export default printsSlice.reducer;

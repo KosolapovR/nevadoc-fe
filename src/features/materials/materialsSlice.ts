@@ -4,91 +4,91 @@ import axios from "axios";
 import { URLS } from "../../api";
 import { CreateReq, UpdateReq } from "../../types";
 
-export interface Color {
+export interface Material {
   id: string;
   value: string;
 }
 
-export interface ColorsState {
-  data: Color[];
+export interface MaterialsState {
+  data: Material[];
   status: "idle" | "loading" | "failed";
 }
 
-const initialState: ColorsState = {
+const initialState: MaterialsState = {
   data: [],
   status: "idle",
 };
 
-export const requestColorsAsync = createAsyncThunk(
-  "colors/fetchColors",
+export const requestMaterialsAsync = createAsyncThunk(
+  "materials/fetchMaterials",
   async () => {
-    const response = await axios.get(URLS.getColors());
+    const response = await axios.get(URLS.getMaterials());
     return response?.data?.data;
   }
 );
 
-export const postColorAsync = createAsyncThunk(
-  "colors/postColor",
+export const postMaterialAsync = createAsyncThunk(
+  "materials/postMaterial",
   async (request: CreateReq) => {
-    const response = await axios.post(URLS.getColors(), request);
+    const response = await axios.post(URLS.getMaterials(), request);
     return response?.data?.data;
   }
 );
 
-export const updateColorAsync = createAsyncThunk(
-  "colors/updateColor",
+export const updateMaterialAsync = createAsyncThunk(
+  "materials/updateMaterial",
   async (request: UpdateReq) => {
-    const response = await axios.put(URLS.getColors(request.id), request);
+    const response = await axios.put(URLS.getMaterials(request.id), request);
     return response?.data?.data;
   }
 );
 
-export const deleteColorAsync = createAsyncThunk(
-  "colors/deleteColor",
+export const deleteMaterialAsync = createAsyncThunk(
+  "materials/deleteMaterial",
   async (id: string) => {
-    const response = await axios.delete(URLS.getColors(id));
+    const response = await axios.delete(URLS.getMaterials(id));
     return response?.data?.data;
   }
 );
 
-export const colorsSlice = createSlice({
-  name: "color",
+export const materialsSlice = createSlice({
+  name: "material",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(requestColorsAsync.pending, (state) => {
+      .addCase(requestMaterialsAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(requestColorsAsync.fulfilled, (state, action) => {
+      .addCase(requestMaterialsAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data = action.payload;
       })
-      .addCase(postColorAsync.pending, (state) => {
+      .addCase(postMaterialAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(postColorAsync.fulfilled, (state, action) => {
+      .addCase(postMaterialAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data.push(action.payload);
       })
-      .addCase(updateColorAsync.pending, (state) => {
+      .addCase(updateMaterialAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(updateColorAsync.fulfilled, (state, action) => {
+      .addCase(updateMaterialAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Color) => item.id === action.payload.id
+          (item: Material) => item.id === action.payload.id
         );
 
         state.data[index] = action.payload;
       })
-      .addCase(deleteColorAsync.pending, (state, action) => {
+      .addCase(deleteMaterialAsync.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(deleteColorAsync.fulfilled, (state, action) => {
+      .addCase(deleteMaterialAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Color) => item.id === action.meta.arg
+          (item: Material) => item.id === action.meta.arg
         );
         if (index > -1) {
           state.data.splice(index, 1);
@@ -97,6 +97,6 @@ export const colorsSlice = createSlice({
   },
 });
 
-export const {} = colorsSlice.actions;
-export const selectColors = (state: RootState) => state.colors.data;
-export default colorsSlice.reducer;
+export const {} = materialsSlice.actions;
+export const selectMaterials = (state: RootState) => state.materials.data;
+export default materialsSlice.reducer;

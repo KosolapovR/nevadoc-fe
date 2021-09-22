@@ -4,91 +4,91 @@ import axios from "axios";
 import { URLS } from "../../api";
 import { CreateReq, UpdateReq } from "../../types";
 
-export interface Size {
+export interface Color {
   id: string;
   value: string;
 }
 
-export interface SizesState {
-  data: Size[];
+export interface ColorsState {
+  data: Color[];
   status: "idle" | "loading" | "failed";
 }
 
-const initialState: SizesState = {
+const initialState: ColorsState = {
   data: [],
   status: "idle",
 };
 
-export const requestSizesAsync = createAsyncThunk(
-  "sizes/fetchSizes",
+export const requestColorsAsync = createAsyncThunk(
+  "colors/fetchColors",
   async () => {
-    const response = await axios.get(URLS.getSizes());
+    const response = await axios.get(URLS.getColors());
     return response?.data?.data;
   }
 );
 
-export const postSizeAsync = createAsyncThunk(
-  "sizes/postSize",
+export const postColorAsync = createAsyncThunk(
+  "colors/postColor",
   async (request: CreateReq) => {
-    const response = await axios.post(URLS.getSizes(), request);
+    const response = await axios.post(URLS.getColors(), request);
     return response?.data?.data;
   }
 );
 
-export const updateSizeAsync = createAsyncThunk(
-  "sizes/updateSize",
+export const updateColorAsync = createAsyncThunk(
+  "colors/updateColor",
   async (request: UpdateReq) => {
-    const response = await axios.put(URLS.getSizes(request.id), request);
+    const response = await axios.put(URLS.getColors(request.id), request);
     return response?.data?.data;
   }
 );
 
-export const deleteSizeAsync = createAsyncThunk(
-  "sizes/deleteSize",
+export const deleteColorAsync = createAsyncThunk(
+  "colors/deleteColor",
   async (id: string) => {
-    const response = await axios.delete(URLS.getSizes(id));
+    const response = await axios.delete(URLS.getColors(id));
     return response?.data?.data;
   }
 );
 
-export const sizesSlice = createSlice({
-  name: "size",
+export const colorsSlice = createSlice({
+  name: "color",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(requestSizesAsync.pending, (state) => {
+      .addCase(requestColorsAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(requestSizesAsync.fulfilled, (state, action) => {
+      .addCase(requestColorsAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data = action.payload;
       })
-      .addCase(postSizeAsync.pending, (state) => {
+      .addCase(postColorAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(postSizeAsync.fulfilled, (state, action) => {
+      .addCase(postColorAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data.push(action.payload);
       })
-      .addCase(updateSizeAsync.pending, (state) => {
+      .addCase(updateColorAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(updateSizeAsync.fulfilled, (state, action) => {
+      .addCase(updateColorAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Size) => item.id === action.payload.id
+          (item: Color) => item.id === action.payload.id
         );
 
         state.data[index] = action.payload;
       })
-      .addCase(deleteSizeAsync.pending, (state, action) => {
+      .addCase(deleteColorAsync.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(deleteSizeAsync.fulfilled, (state, action) => {
+      .addCase(deleteColorAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Size) => item.id === action.meta.arg
+          (item: Color) => item.id === action.meta.arg
         );
         if (index > -1) {
           state.data.splice(index, 1);
@@ -97,6 +97,6 @@ export const sizesSlice = createSlice({
   },
 });
 
-export const {} = sizesSlice.actions;
-export const selectSizes = (state: RootState) => state.sizes.data;
-export default sizesSlice.reducer;
+export const {} = colorsSlice.actions;
+export const selectColors = (state: RootState) => state.colors.data;
+export default colorsSlice.reducer;

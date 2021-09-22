@@ -2,55 +2,55 @@ import React, { useCallback, useEffect } from "react";
 import { SimpleTable } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-  deleteMaterialAsync,
-  postMaterialAsync,
-  requestMaterialsAsync,
-  selectMaterials,
-  updateMaterialAsync,
-} from "../../features/materials/materialsSlice";
+  deletePrintAsync,
+  postPrintAsync,
+  requestPrintsAsync,
+  updatePrintAsync,
+  selectPrints,
+} from "../../features/prints/printsSlice";
 import { CreateReq, UpdateReq } from "../../types";
 
-function MaterialsPage() {
-  const materials = useAppSelector(selectMaterials);
+function PrintsPage() {
+  const prints = useAppSelector(selectPrints);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(requestMaterialsAsync());
+    dispatch(requestPrintsAsync());
   }, [dispatch]);
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postMaterialAsync(data));
+      dispatch(postPrintAsync(data));
     },
     [dispatch]
   );
 
   const handleEditItem = useCallback(
     (data: UpdateReq | object) => {
-      dispatch(updateMaterialAsync(data as UpdateReq));
+      dispatch(updatePrintAsync(data as UpdateReq));
     },
     [dispatch]
   );
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteMaterialAsync(id));
+      dispatch(deletePrintAsync(id));
     },
-    [dispatch, deleteMaterialAsync]
+    [dispatch]
   );
 
   return (
     <div>
       <SimpleTable
-        rows={materials}
+        rows={prints}
         onAddItem={handleAddItem}
         onEditItem={handleEditItem}
         onDeleteItem={handleDeleteItem}
-        addFormTitle="Добавление материала"
-        editFormTitle="Редактирование материала"
+        addFormTitle="Добавление принта"
+        editFormTitle="Редактирование принта"
       />
     </div>
   );
 }
 
-export default MaterialsPage;
+export default PrintsPage;

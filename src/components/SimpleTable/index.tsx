@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useCallback, useState } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,7 +8,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { Button, Checkbox } from "@mui/material";
-import { useCallback, useState } from "react";
 import BaseModal from "../BaseModal";
 import SimpleItemForm from "../SimpleItemForm";
 import { CreateReq, UpdateReq } from "../../types";
@@ -19,10 +19,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 
 type PropsType = {
-  rows?: Array<{
-    id: string;
-    value: string;
-  }>;
+  rows?: { id: string; [key: string]: any }[];
+  columns?: string[];
   onAddItem: (data: CreateReq) => void;
   onEditItem: (data: UpdateReq | object) => void;
   onDeleteItem: (id: string) => void;
@@ -89,6 +87,7 @@ function SimpleTable({
   onDeleteItem,
   addFormTitle,
   editFormTitle,
+  columns = ["value"],
 }: PropsType) {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -157,22 +156,27 @@ function SimpleTable({
       <EnhancedTableToolbar
         numSelected={selected.length}
         onDelete={() => {
-          onDeleteItem(selected[0]);
+          selected.forEach(onDeleteItem);
           setSelected([]);
         }}
       />
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ minHeight: 562, maxHeight: 562 }}>
         <BaseModal onClose={handleAddCloseModal} open={addModalOpen}>
-          <SimpleItemForm formTitle={addFormTitle} onSubmit={onAddItem} />
+          <SimpleItemForm
+            formTitle={addFormTitle}
+            onSubmit={onAddItem}
+            simple={columns === ["value"]}
+          />
         </BaseModal>
         <BaseModal onClose={handleEditCloseModal} open={editModalOpen}>
           <SimpleItemForm
             formTitle={editFormTitle}
             onSubmit={onEditItem}
             initialValues={currentRow}
+            simple={columns === ["value"]}
           />
         </BaseModal>
-        <Table sx={{ minWidth: 200 }} aria-label="simple table">
+        <Table sx={{ minWidth: 200 }} aria-label="simple table" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
@@ -188,9 +192,12 @@ function SimpleTable({
                   }}
                 />
               </TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell align="left">Value</TableCell>
-
+              <TableCell width={50}>ID</TableCell>
+              {columns.map((c, i) => (
+                <TableCell key={i} align="left">
+                  {c}
+                </TableCell>
+              ))}
               <TableCell align="right">
                 <Button onClick={handleAddItem} variant={"contained"}>
                   Добавить
@@ -207,19 +214,37 @@ function SimpleTable({
                   key={row.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   onClick={() => handleEditItem(row.id)}
+                  hover
                 >
-                  <Checkbox
-                    color="primary"
-                    checked={isItemSelected}
-                    onClick={(event) => handleClickCheckbox(event, row.id)}
-                    inputProps={{
-                      "aria-labelledby": labelId,
-                    }}
-                  />
-                  <TableCell component="th" scope="row">
+                  <TableCell
+                    width={50}
+                    component="th"
+                    scope="row"
+                    padding="checkbox"
+                  >
+                    <Checkbox
+                      color="primary"
+                      checked={isItemSelected}
+                      onClick={(event) => handleClickCheckbox(event, row.id)}
+                      inputProps={{
+                        "aria-labelledby": labelId,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell
+                    width={50}
+                    component="th"
+                    scope="row"
+                    style={{ color: "#999999" }}
+                  >
                     {row.id}
                   </TableCell>
-                  <TableCell align="left">{row.value}</TableCell>
+
+                  {columns.map((c, i) => (
+                    <TableCell key={i} align="left">
+                      {row[c]}
+                    </TableCell>
+                  ))}
                 </TableRow>
               );
             })}

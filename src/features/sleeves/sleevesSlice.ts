@@ -4,91 +4,91 @@ import axios from "axios";
 import { URLS } from "../../api";
 import { CreateReq, UpdateReq } from "../../types";
 
-export interface Material {
+export interface Sleeve {
   id: string;
   value: string;
 }
 
-export interface MaterialsState {
-  data: Material[];
+export interface SleevesState {
+  data: Sleeve[];
   status: "idle" | "loading" | "failed";
 }
 
-const initialState: MaterialsState = {
+const initialState: SleevesState = {
   data: [],
   status: "idle",
 };
 
-export const requestMaterialsAsync = createAsyncThunk(
-  "materials/fetchMaterials",
+export const requestSleevesAsync = createAsyncThunk(
+  "sleeves/fetchSleeves",
   async () => {
-    const response = await axios.get(URLS.getMaterials());
+    const response = await axios.get(URLS.getSleeves());
     return response?.data?.data;
   }
 );
 
-export const postMaterialAsync = createAsyncThunk(
-  "materials/postMaterial",
+export const postSleeveAsync = createAsyncThunk(
+  "sleeves/postSleeve",
   async (request: CreateReq) => {
-    const response = await axios.post(URLS.getMaterials(), request);
+    const response = await axios.post(URLS.getSleeves(), request);
     return response?.data?.data;
   }
 );
 
-export const updateMaterialAsync = createAsyncThunk(
-  "materials/updateMaterial",
+export const updateSleeveAsync = createAsyncThunk(
+  "sleeves/updateSleeve",
   async (request: UpdateReq) => {
-    const response = await axios.put(URLS.getMaterials(request.id), request);
+    const response = await axios.put(URLS.getSleeves(request.id), request);
     return response?.data?.data;
   }
 );
 
-export const deleteMaterialAsync = createAsyncThunk(
-  "materials/deleteMaterial",
+export const deleteSleeveAsync = createAsyncThunk(
+  "sleeves/deleteSleeve",
   async (id: string) => {
-    const response = await axios.delete(URLS.getMaterials(id));
+    const response = await axios.delete(URLS.getSleeves(id));
     return response?.data?.data;
   }
 );
 
-export const materialsSlice = createSlice({
-  name: "material",
+export const sleevesSlice = createSlice({
+  name: "sleeve",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(requestMaterialsAsync.pending, (state) => {
+      .addCase(requestSleevesAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(requestMaterialsAsync.fulfilled, (state, action) => {
+      .addCase(requestSleevesAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data = action.payload;
       })
-      .addCase(postMaterialAsync.pending, (state) => {
+      .addCase(postSleeveAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(postMaterialAsync.fulfilled, (state, action) => {
+      .addCase(postSleeveAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data.push(action.payload);
       })
-      .addCase(updateMaterialAsync.pending, (state) => {
+      .addCase(updateSleeveAsync.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(updateMaterialAsync.fulfilled, (state, action) => {
+      .addCase(updateSleeveAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Material) => item.id === action.payload.id
+          (item: Sleeve) => item.id === action.payload.id
         );
 
         state.data[index] = action.payload;
       })
-      .addCase(deleteMaterialAsync.pending, (state, action) => {
+      .addCase(deleteSleeveAsync.pending, (state, action) => {
         state.status = "loading";
       })
-      .addCase(deleteMaterialAsync.fulfilled, (state, action) => {
+      .addCase(deleteSleeveAsync.fulfilled, (state, action) => {
         state.status = "idle";
         const index = state.data.findIndex(
-          (item: Material) => item.id === action.meta.arg
+          (item: Sleeve) => item.id === action.meta.arg
         );
         if (index > -1) {
           state.data.splice(index, 1);
@@ -97,6 +97,6 @@ export const materialsSlice = createSlice({
   },
 });
 
-export const {} = materialsSlice.actions;
-export const selectMaterials = (state: RootState) => state.materials.data;
-export default materialsSlice.reducer;
+export const {} = sleevesSlice.actions;
+export const selectSleeves = (state: RootState) => state.sleeves.data;
+export default sleevesSlice.reducer;

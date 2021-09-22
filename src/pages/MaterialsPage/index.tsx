@@ -2,55 +2,55 @@ import React, { useCallback, useEffect } from "react";
 import { SimpleTable } from "../../components";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-  deleteColorAsync,
-  postColorAsync,
-  requestColorsAsync,
-  selectColors,
-  updateColorAsync,
-} from "../../features/colors/colorsSlice";
+  deleteMaterialAsync,
+  postMaterialAsync,
+  requestMaterialsAsync,
+  selectMaterials,
+  updateMaterialAsync,
+} from "../../features/materials/materialsSlice";
 import { CreateReq, UpdateReq } from "../../types";
 
-function ColorsPage() {
-  const colors = useAppSelector(selectColors);
+function MaterialsPage() {
+  const materials = useAppSelector(selectMaterials);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(requestColorsAsync());
+    dispatch(requestMaterialsAsync());
   }, [dispatch]);
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postColorAsync(data));
+      dispatch(postMaterialAsync(data));
     },
     [dispatch]
   );
 
   const handleEditItem = useCallback(
     (data: UpdateReq | object) => {
-      dispatch(updateColorAsync(data as UpdateReq));
+      dispatch(updateMaterialAsync(data as UpdateReq));
     },
     [dispatch]
   );
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteColorAsync(id));
+      dispatch(deleteMaterialAsync(id));
     },
-    [dispatch, deleteColorAsync]
+    [dispatch]
   );
 
   return (
     <div>
       <SimpleTable
-        rows={colors}
+        rows={materials}
         onAddItem={handleAddItem}
         onEditItem={handleEditItem}
         onDeleteItem={handleDeleteItem}
-        addFormTitle="Добавление цвета"
-        editFormTitle="Редактирование цвета"
+        addFormTitle="Добавление материала"
+        editFormTitle="Редактирование материала"
       />
     </div>
   );
 }
 
-export default ColorsPage;
+export default MaterialsPage;

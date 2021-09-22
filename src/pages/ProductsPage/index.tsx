@@ -77,7 +77,7 @@ interface MuiVirtualizedTableProps extends WithStyles<typeof styles> {
 class MuiVirtualizedTable extends React.PureComponent<MuiVirtualizedTableProps> {
   static defaultProps = {
     headerHeight: 48,
-    rowHeight: 48,
+    rowHeight: 60,
   };
 
   getRowClassName = ({ index }: Row) => {
@@ -185,7 +185,7 @@ function ProductsPage() {
 
   useEffect(() => {
     dispatch(requestProductsAsync());
-  }, []);
+  }, [dispatch]);
 
   return (
     <Paper style={{ height: "100%", width: "100%" }}>
