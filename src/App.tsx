@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import ProductsPage from "./pages/ProductsPage";
 import styles from "./app.module.css";
 import MenuLink from "./components/MenuLink";
@@ -9,9 +9,10 @@ import MaterialsPage from "./pages/MaterialsPage";
 import SleevesPage from "./pages/SleevesPage";
 import PrintsPage from "./pages/PrintsPage";
 import AccountPage from "./pages/AccountPage";
-import { Toaster } from "react-hot-toast";
+import {Toaster} from "react-hot-toast";
 import SellersPage from "./pages/SellersPage";
 import StocksPage from "./pages/StocksPage";
+import AddProductPage from "./pages/AddProductPage";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           // Define default options
           className: "",
           duration: 5000,
+          position: "bottom-right",
           style: {
             background: "#363636",
             color: "#fff",
@@ -52,6 +54,7 @@ function App() {
             <MenuLink label="Принты" to="/prints" />
             <MenuLink label="Поставщики" to="/sellers" />
             <MenuLink label="Склады" to="/stocks" />
+            <MenuLink label="Добавить товар" to="/add-product" />
           </nav>
         </div>
 
@@ -83,6 +86,9 @@ function App() {
             </Route>
             <Route path="/stocks">
               <StocksPage />
+            </Route>
+            <Route path="/add-product">
+              <AddProductPage />
             </Route>
           </Switch>
         </div>

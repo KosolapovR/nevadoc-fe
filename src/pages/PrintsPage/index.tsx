@@ -5,10 +5,11 @@ import {
   deletePrintAsync,
   postPrintAsync,
   requestPrintsAsync,
-  updatePrintAsync,
   selectPrints,
+  updatePrintAsync,
 } from "../../features/prints/printsSlice";
 import { CreateReq, UpdateReq } from "../../types";
+import { toast } from "react-hot-toast";
 
 function PrintsPage() {
   const prints = useAppSelector(selectPrints);
@@ -20,7 +21,14 @@ function PrintsPage() {
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postPrintAsync(data));
+      dispatch(postPrintAsync(data))
+        .unwrap()
+        .then(() => toast.success("Принт успешно добавлен"))
+        .catch(() =>
+          toast.error(
+            "Ошибка добавления принта, убедитесь что этого принта нет"
+          )
+        );
     },
     [dispatch]
   );
@@ -34,7 +42,10 @@ function PrintsPage() {
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deletePrintAsync(id));
+      dispatch(deletePrintAsync(id))
+        .unwrap()
+        .then(() => toast.success("Принт успешно удален"))
+        .catch(() => toast.error("Ошибка удаления принта"));
     },
     [dispatch]
   );
@@ -48,6 +59,7 @@ function PrintsPage() {
         onDeleteItem={handleDeleteItem}
         addFormTitle="Добавление принта"
         editFormTitle="Редактирование принта"
+        tableHeader="Принты"
       />
     </div>
   );

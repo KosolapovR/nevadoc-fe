@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, {ChangeEvent, useCallback, useEffect, useRef, useState,} from "react";
 import {
   Box,
   Button,
@@ -18,43 +12,46 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import clone from "lodash/clone";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { makeStyles, withStyles, WithStyles } from "@mui/styles";
+import {makeStyles, withStyles, WithStyles} from "@mui/styles";
 import axios from "axios";
-import { URLS } from "../../api";
-import { toast } from "react-hot-toast";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {URLS} from "../../api";
+import {toast} from "react-hot-toast";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
   ParsedProducts,
   requestParsedProductsAsync,
   selectParsedProducts,
+  selectParsedProductsSum,
 } from "../../features/parsedProducts/parsedProductsSlice";
-import { createTheme, Theme } from "@mui/material/styles";
+import {createTheme, Theme} from "@mui/material/styles";
 import clsx from "clsx";
-import {
-  AutoSizer,
-  Column,
-  Table,
-  TableCellRenderer,
-  TableHeaderProps,
-} from "react-virtualized";
+import {AutoSizer, Column, Table, TableCellRenderer, TableHeaderProps,} from "react-virtualized";
 import TableCell from "@mui/material/TableCell";
+import {requestSellersAsync, selectSellers,} from "../../features/sellers/sellersSlice";
+import {requestStocksAsync, selectStocks,} from "../../features/stocks/stocksSlice";
+import {useHistory} from "react-router-dom";
+import {saveAs} from "file-saver";
 import {
-  requestSellersAsync,
-  selectSellers,
-} from "../../features/sellers/sellersSlice";
-import {
-  requestStocksAsync,
-  selectStocks,
-} from "../../features/stocks/stocksSlice";
+  selectWidgetFileName,
+  selectWidgetSeller,
+  selectWidgetStock,
+  setWidgetFileName,
+  setWidgetSeller,
+  setWidgetStock,
+} from "../../features/widget/widgetSlice";
 
 const useStyles = makeStyles({
   uploader: {
     display: "flex",
     alignItems: "center",
-    cursor: "pointer",
     minWidth: 200,
+  },
+  closeIcon: {
+    cursor: "pointer",
+    marginRight: "8px",
   },
   container: {
     minHeight: "556px",
@@ -63,8 +60,8 @@ const useStyles = makeStyles({
   header: {
     position: "sticky",
     top: 0,
-    backgroundColor: "#e2e2e2",
-    paddingBottom: "8px",
+    padding: "16px",
+    marginBottom: "8px",
   },
   fileName: {
     maxWidth: 250,
@@ -123,7 +120,7 @@ interface Row {
 interface MuiVirtualizedTableProps extends WithStyles<typeof styles> {
   columns: readonly ColumnData[];
   headerHeight?: number;
-  onRowClick?: () => void;
+  onRowClick?: (data?: any) => void;
   rowCount: number;
   rowGetter: (row: Row) => ParsedProducts;
   rowHeight?: number;
@@ -188,8 +185,14 @@ class MuiVirtualizedTable extends React.PureComponent<MuiVirtualizedTableProps> 
   };
 
   render() {
-    const { classes, columns, rowHeight, headerHeight, ...tableProps } =
-      this.props;
+    const {
+      classes,
+      columns,
+      rowHeight,
+      headerHeight,
+      onRowClick,
+      ...tableProps
+    } = this.props;
     return (
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
@@ -202,6 +205,9 @@ class MuiVirtualizedTable extends React.PureComponent<MuiVirtualizedTableProps> 
             }}
             headerHeight={headerHeight!}
             className={classes.table}
+            onRowClick={(e) => {
+              if (onRowClick) onRowClick(e.rowData);
+            }}
             {...tableProps}
             rowClassName={this.getRowClassName}
           >
@@ -235,16 +241,21 @@ const VirtualizedTable = withStyles(styles, { defaultTheme })(
 );
 
 function AccountPage() {
+  const history = useHistory();
+  const dispatch = useAppDispatch();
+  const styles = useStyles();
+
   const parsedProducts = useAppSelector(selectParsedProducts);
   const stocks = useAppSelector(selectStocks);
   const sellers = useAppSelector(selectSellers);
-  const dispatch = useAppDispatch();
-  const styles = useStyles();
-  const [selectedFileName, setSelectedFileName] = useState<
-    string | undefined
-  >();
-  const [seller, setSeller] = useState("");
-  const [stock, setStock] = useState("");
+  const widgetSeller = useAppSelector(selectWidgetSeller);
+  const widgetStock = useAppSelector(selectWidgetStock);
+  const widgetFileName = useAppSelector(selectWidgetFileName);
+  const accountSum = useAppSelector(selectParsedProductsSum);
+
+  const [selectedFileName, setSelectedFileName] = useState(widgetFileName);
+  const [seller, setSeller] = useState(widgetSeller);
+  const [stock, setStock] = useState(widgetStock);
 
   const inputRef = useRef({ value: "" });
 
@@ -254,16 +265,39 @@ function AccountPage() {
   }, [dispatch]);
 
   const handleParse = useCallback(() => {
-    dispatch(requestParsedProductsAsync({ params: { seller, stock } }));
+    dispatch(requestParsedProductsAsync({ params: { seller, stock } }))
+      .unwrap()
+      .catch((err) => {
+        toast.error(err.message);
+      });
   }, [dispatch, seller, stock]);
 
-  const uploadFile = async (file: Blob) => {
+  const uploadFile = useCallback(async (file: Blob) => {
     const formData = new FormData();
     formData.append("file", file);
 
     const response = await axios.post(URLS.getFileUpload(), formData);
     if (response.status === 200) {
       toast.success("Файл загружен!");
+    } else {
+      toast.error(
+        `При попытке загрузки на сервер файла произошла ошибка ${response.statusText}`
+      );
+    }
+  }, []);
+
+  const downloadFile = async () => {
+    const response = await axios.get(URLS.getFileDownload(), {
+      responseType: "blob",
+      timeout: 30000,
+    });
+    if (response.status === 200) {
+      toast.success("Файл успешно скачан!");
+      await saveAs(response.data, "result.xls");
+    } else {
+      toast.error(
+        `При попытке скачать файл произошла ошибка ${response.statusText}`
+      );
     }
   };
 
@@ -272,10 +306,11 @@ function AccountPage() {
       const file = e.target.files[0];
       if (file) {
         setSelectedFileName(file.name);
+        dispatch(setWidgetFileName(file.name));
         uploadFile(file);
       }
     },
-    [setSelectedFileName, uploadFile]
+    [setSelectedFileName, uploadFile, dispatch]
   );
 
   const handleResetFile = useCallback(() => {
@@ -284,47 +319,55 @@ function AccountPage() {
 
   const handleSellerChange = useCallback(
     (event: SelectChangeEvent) => {
-      setSeller(event.target.value);
+      const newSeller = event.target.value;
+      setSeller(newSeller);
+      dispatch(setWidgetSeller(newSeller));
     },
-    [setSeller]
+    [setSeller, dispatch]
   );
   const handleStockChange = useCallback(
     (event: SelectChangeEvent) => {
-      setStock(event.target.value);
+      const newStock = event.target.value;
+      setStock(newStock);
+      dispatch(setWidgetStock(newStock));
     },
-    [setStock]
+    [setStock, dispatch]
+  );
+
+  const handleGoToAddProductPage = useCallback(
+    (row) => {
+      history.push("/add-product", { product: row });
+    },
+    [history]
   );
 
   return (
     <div style={{ position: "relative" }}>
-      <Stack
-        direction={"row"}
-        justifyContent={"space-between"}
-        alignItems={"center"}
-        className={styles.header}
-      >
+      <Paper className={styles.header}>
         <Stack
           direction={"row"}
           justifyContent={"space-between"}
           alignItems={"center"}
-          style={{ width: "600px" }}
         >
           {selectedFileName ? (
-            <div className={styles.uploader} onClick={handleResetFile}>
-              <CancelIcon color={"primary"} />
+            <div className={styles.uploader}>
+              <CancelIcon
+                className={styles.closeIcon}
+                color={"primary"}
+                onClick={handleResetFile}
+              />
               <Typography className={styles.fileName} fontSize={12}>
                 {selectedFileName}
               </Typography>
             </div>
           ) : (
             <label htmlFor="upload" className={styles.uploader}>
-              <FileUploadIcon color={"primary"} />
+              <FileUploadIcon className={styles.closeIcon} color={"primary"} />
               Выберите накладную
             </label>
           )}
           <Stack
             direction={"row"}
-            justifyContent={"end"}
             alignItems={"center"}
             style={{ width: "600px" }}
           >
@@ -366,41 +409,54 @@ function AccountPage() {
                 ))}
               </Select>
             </FormControl>
+            {parsedProducts.length > 0 && (
+              <>
+                <Button
+                  color={"success"}
+                  variant={"outlined"}
+                  onClick={downloadFile}
+                  style={{ height: "40px" }}
+                >
+                  Скачать файл
+                </Button>
+                <Typography>Сумма: {accountSum}</Typography>
+              </>
+            )}
           </Stack>
+          <Button
+            color={"primary"}
+            variant={"contained"}
+            onClick={handleParse}
+            style={{ height: "40px" }}
+          >
+            Спарсить
+          </Button>
         </Stack>
-        <Button
-          color={"primary"}
-          variant={"contained"}
-          onClick={handleParse}
-          style={{ height: "40px" }}
-        >
-          Спарсить
-        </Button>
-      </Stack>
 
-      <Input
-        style={{ display: "none" }}
-        ref={inputRef}
-        id={"upload"}
-        size={"small"}
-        type={"file"}
-        onChange={handleSelectFile}
-      />
+        <Input
+          style={{ display: "none" }}
+          ref={inputRef}
+          id={"upload"}
+          size={"small"}
+          type={"file"}
+          onChange={handleSelectFile}
+        />
+      </Paper>
       <Paper className={styles.container}>
         {parsedProducts.length > 0 ? (
           <VirtualizedTable
             rowCount={parsedProducts.length}
-            rowGetter={({ index }) => parsedProducts[index]}
+            rowGetter={({ index }) => {
+              const product = clone(parsedProducts[index]);
+              product.number = ++index;
+              return product;
+            }}
+            onRowClick={handleGoToAddProductPage}
             columns={[
               {
-                width: 100,
-                label: "Seller",
-                dataKey: "seller",
-              },
-              {
-                width: 380,
-                label: "Pattern",
-                dataKey: "pattern",
+                width: 50,
+                label: "N",
+                dataKey: "number",
               },
               {
                 width: 200,
@@ -431,6 +487,16 @@ function AccountPage() {
                 width: 80,
                 label: "Print",
                 dataKey: "print",
+              },
+              {
+                width: 80,
+                label: "Quantity",
+                dataKey: "quantity",
+              },
+              {
+                width: 80,
+                label: "Price",
+                dataKey: "price",
               },
             ]}
           />

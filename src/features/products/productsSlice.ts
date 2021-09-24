@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import axios from "axios";
 import { URLS } from "../../api";
+import { CreateReq } from "../../types";
 
 export interface Product {
   id: string;
@@ -15,13 +16,19 @@ export interface Product {
   prints?: string;
 }
 
+export interface UniqueProducts {
+  name: string;
+}
+
 export interface ProductsState {
   data: Product[];
+  unique: UniqueProducts[];
   status: "idle" | "loading" | "failed";
 }
 
 const initialState: ProductsState = {
   data: [],
+  unique: [],
   status: "idle",
 };
 
@@ -34,8 +41,28 @@ export const requestProductsAsync = createAsyncThunk(
   }
 );
 
+export const requestUniqueProductsAsync = createAsyncThunk(
+  "products/fetchUniqueProducts",
+  async () => {
+    const response = await axios.get(URLS.getProducts(), {
+      params: { unique: true },
+    });
+    // The value we return becomes the `fulfilled` action payload
+    return response?.data?.data;
+  }
+);
+
+export const postProductsAsync = createAsyncThunk(
+  "products/postProducts",
+  async (request: CreateReq) => {
+    const response = await axios.post(URLS.getProducts(), request);
+    // The value we return becomes the `fulfilled` action payload
+    return response?.data?.data;
+  }
+);
+
 export const productsSlice = createSlice({
-  name: "size",
+  name: "product",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
@@ -53,10 +80,25 @@ export const productsSlice = createSlice({
       .addCase(requestProductsAsync.fulfilled, (state, action) => {
         state.status = "idle";
         state.data = action.payload;
+      })
+      .addCase(requestUniqueProductsAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(requestUniqueProductsAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.unique = action.payload;
+      })
+      .addCase(postProductsAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(postProductsAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.data.push(action.payload);
       });
   },
 });
 
 export const { set } = productsSlice.actions;
 export const selectProducts = (state: RootState) => state.products.data;
+export const selectUniqueProducts = (state: RootState) => state.products.unique;
 export default productsSlice.reducer;

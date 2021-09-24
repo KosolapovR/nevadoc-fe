@@ -9,6 +9,7 @@ import {
   updateMaterialAsync,
 } from "../../features/materials/materialsSlice";
 import { CreateReq, UpdateReq } from "../../types";
+import { toast } from "react-hot-toast";
 
 function MaterialsPage() {
   const materials = useAppSelector(selectMaterials);
@@ -20,7 +21,12 @@ function MaterialsPage() {
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postMaterialAsync(data));
+      dispatch(postMaterialAsync(data))
+        .unwrap()
+        .then(() => toast.success("Тип ткани успешно добавлен"))
+        .catch(() =>
+          toast.error("Ошибка добавления ткани, убедитесь что этой ткани нет")
+        );
     },
     [dispatch]
   );
@@ -34,7 +40,10 @@ function MaterialsPage() {
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteMaterialAsync(id));
+      dispatch(deleteMaterialAsync(id))
+        .unwrap()
+        .then(() => toast.success("Тип ткани успешно удален"))
+        .catch(() => toast.error("Ошибка удаления типа ткани"));
     },
     [dispatch]
   );
@@ -48,6 +57,7 @@ function MaterialsPage() {
         onDeleteItem={handleDeleteItem}
         addFormTitle="Добавление материала"
         editFormTitle="Редактирование материала"
+        tableHeader="Ткани"
       />
     </div>
   );

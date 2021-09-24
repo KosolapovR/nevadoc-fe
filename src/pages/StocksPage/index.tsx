@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from "react";
-import { SimpleTable } from "../../components";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import React, {useCallback, useEffect} from "react";
+import {SimpleTable} from "../../components";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
   deleteStockAsync,
   postStockAsync,
@@ -8,7 +8,8 @@ import {
   selectStocks,
   updateStockAsync,
 } from "../../features/stocks/stocksSlice";
-import { CreateReq, UpdateReq } from "../../types";
+import {CreateReq, UpdateReq} from "../../types";
+import {toast} from "react-hot-toast";
 
 function StocksPage() {
   const stocks = useAppSelector(selectStocks);
@@ -34,7 +35,10 @@ function StocksPage() {
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteStockAsync(id));
+      dispatch(deleteStockAsync(id))
+        .unwrap()
+        .then(() => toast.success("Склад успешно удален"))
+        .catch(() => toast.error("Ошибка удаления склада"));
     },
     [dispatch]
   );
@@ -49,6 +53,7 @@ function StocksPage() {
         onDeleteItem={handleDeleteItem}
         addFormTitle="Добавление склада"
         editFormTitle="Редактирование склада"
+        tableHeader="Склады"
       />
     </div>
   );

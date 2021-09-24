@@ -1,18 +1,13 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
-import axios, { AxiosRequestConfig } from "axios";
-import { URLS } from "../../api";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {RootState} from "../../app/store";
+import axios, {AxiosRequestConfig} from "axios";
+import {URLS} from "../../api";
+import {Product} from "../products/productsSlice";
 
-export interface ParsedProducts {
-  id: string;
-  seller: string;
-  name: string;
-  pattern: string;
-  color?: string;
-  size?: string;
-  sleeve?: string;
-  material?: string;
-  prints?: string;
+export interface ParsedProducts extends Product {
+  quantity: string;
+  price: string;
+  number: number;
 }
 
 export interface ParsedProductsState {
@@ -53,7 +48,13 @@ export const parsedProductsSlice = createSlice({
   },
 });
 
-export const {} = parsedProductsSlice.actions;
 export const selectParsedProducts = (state: RootState) =>
   state.parsedProducts.data;
+export const selectParsedProductsSum = (state: RootState) =>
+  state.parsedProducts.data.reduce((sum, curr) => {
+    if (!curr) {
+      return sum;
+    }
+    return sum + +(curr.price || 0) * +curr.quantity;
+  }, 0);
 export default parsedProductsSlice.reducer;

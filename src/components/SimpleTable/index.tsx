@@ -26,15 +26,17 @@ type PropsType = {
   onDeleteItem: (id: string) => void;
   addFormTitle?: string;
   editFormTitle?: string;
+  tableHeader: string;
 };
 
 interface EnhancedTableToolbarProps {
   numSelected: number;
   onDelete: () => void;
+  tableHeader: string;
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  const { numSelected, onDelete } = props;
+  const { numSelected, onDelete, tableHeader } = props;
 
   return (
     <Toolbar
@@ -66,7 +68,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
           id="tableTitle"
           component="div"
         >
-          Размеры
+          {tableHeader}
         </Typography>
       )}
       {numSelected > 0 && (
@@ -88,6 +90,7 @@ function SimpleTable({
   addFormTitle,
   editFormTitle,
   columns = ["value"],
+  tableHeader,
 }: PropsType) {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -159,13 +162,14 @@ function SimpleTable({
           selected.forEach(onDeleteItem);
           setSelected([]);
         }}
+        tableHeader={tableHeader}
       />
       <TableContainer component={Paper} sx={{ minHeight: 562, maxHeight: 562 }}>
         <BaseModal onClose={handleAddCloseModal} open={addModalOpen}>
           <SimpleItemForm
             formTitle={addFormTitle}
             onSubmit={onAddItem}
-            simple={columns === ["value"]}
+            simple={columns[0] === "value"}
           />
         </BaseModal>
         <BaseModal onClose={handleEditCloseModal} open={editModalOpen}>
@@ -173,7 +177,7 @@ function SimpleTable({
             formTitle={editFormTitle}
             onSubmit={onEditItem}
             initialValues={currentRow}
-            simple={columns === ["value"]}
+            simple={columns[0] === "value"}
           />
         </BaseModal>
         <Table sx={{ minWidth: 200 }} aria-label="simple table" stickyHeader>

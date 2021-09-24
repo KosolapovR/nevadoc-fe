@@ -1,14 +1,15 @@
-import React, { useCallback, useEffect } from "react";
-import { SimpleTable } from "../../components";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import React, {useCallback, useEffect} from "react";
+import {SimpleTable} from "../../components";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
-  deleteSizeAsync,
-  postSizeAsync,
-  requestSizesAsync,
-  selectSizes,
-  updateSizeAsync,
+    deleteSizeAsync,
+    postSizeAsync,
+    requestSizesAsync,
+    selectSizes,
+    updateSizeAsync,
 } from "../../features/sizes/sizesSlice";
-import { CreateReq, UpdateReq } from "../../types";
+import {CreateReq, UpdateReq} from "../../types";
+import {toast} from "react-hot-toast";
 
 function SizesPage() {
   const sizes = useAppSelector(selectSizes);
@@ -20,7 +21,14 @@ function SizesPage() {
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postSizeAsync(data));
+      dispatch(postSizeAsync(data))
+        .unwrap()
+        .then(() => toast.success("Размер успешно добавлен"))
+        .catch(() =>
+          toast.error(
+            "Ошибка добавления размера, убедитесь что этого размера нет"
+          )
+        );
     },
     [dispatch]
   );
@@ -34,7 +42,10 @@ function SizesPage() {
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteSizeAsync(id));
+      dispatch(deleteSizeAsync(id))
+        .unwrap()
+        .then(() => toast.success("Размер успешно удален"))
+        .catch(() => toast.error("Ошибка удаления размера"));
     },
     [dispatch]
   );
@@ -48,6 +59,7 @@ function SizesPage() {
         onDeleteItem={handleDeleteItem}
         addFormTitle="Добавление размеров"
         editFormTitle="Редактирование размеров"
+        tableHeader="Размеры"
       />
     </div>
   );

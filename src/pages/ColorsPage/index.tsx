@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from "react";
-import { SimpleTable } from "../../components";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import React, {useCallback, useEffect} from "react";
+import {SimpleTable} from "../../components";
+import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {
   deleteColorAsync,
   postColorAsync,
@@ -8,7 +8,8 @@ import {
   selectColors,
   updateColorAsync,
 } from "../../features/colors/colorsSlice";
-import { CreateReq, UpdateReq } from "../../types";
+import {CreateReq, UpdateReq} from "../../types";
+import {toast} from "react-hot-toast";
 
 function ColorsPage() {
   const colors = useAppSelector(selectColors);
@@ -20,7 +21,12 @@ function ColorsPage() {
 
   const handleAddItem = useCallback(
     (data: CreateReq) => {
-      dispatch(postColorAsync(data));
+      dispatch(postColorAsync(data))
+        .unwrap()
+        .then(() => toast.success("Цвет успешно добавлен"))
+        .catch(() =>
+          toast.error("Ошибка добавления цвета, убедитесь что этого цвета нет")
+        );
     },
     [dispatch]
   );
@@ -34,7 +40,10 @@ function ColorsPage() {
 
   const handleDeleteItem = useCallback(
     (id: string) => {
-      dispatch(deleteColorAsync(id));
+      dispatch(deleteColorAsync(id))
+        .unwrap()
+        .then(() => toast.success("Цвет успешно удален"))
+        .catch(() => toast.error("Ошибка удаления цвета"));
     },
     [dispatch]
   );
@@ -48,6 +57,7 @@ function ColorsPage() {
         onDeleteItem={handleDeleteItem}
         addFormTitle="Добавление цвета"
         editFormTitle="Редактирование цвета"
+        tableHeader="Цвета"
       />
     </div>
   );

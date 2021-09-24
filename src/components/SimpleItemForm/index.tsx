@@ -1,11 +1,11 @@
 import React from "react";
-import { useFormik } from "formik";
+import {useFormik} from "formik";
 import * as yup from "yup";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import { Paper, Typography } from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import { CreateReq, UpdateReq } from "../../types";
+import {Paper, Typography} from "@mui/material";
+import {makeStyles} from "@mui/styles";
+import {CreateReq, UpdateReq} from "../../types";
 
 const useStyles = makeStyles({
   container: {
@@ -56,9 +56,8 @@ const SimpleItemForm = ({
     enableReinitialize: true,
     validationSchema: simple ? validationSchemaSimple : validationSchemaExt,
     onSubmit: (values: UpdateReq | CreateReq) => {
-      console.log("values", values);
-
       onSubmit(values);
+      formik.resetForm();
     },
   });
 
@@ -68,6 +67,7 @@ const SimpleItemForm = ({
       <form onSubmit={formik.handleSubmit}>
         {simple ? (
           <TextField
+            sx={{ marginBottom: 2 }}
             className={
               formik.touched.value && Boolean(formik.errors.value)
                 ? classes.textField
@@ -85,12 +85,13 @@ const SimpleItemForm = ({
         ) : (
           <>
             <TextField
+              sx={{ marginBottom: 2 }}
               className={
                 formik.touched.engName && Boolean(formik.errors.engName)
                   ? classes.textField
                   : classes.textFieldError
               }
-              disabled={initialValues.engName != ""}
+              disabled={initialValues.engName !== ""}
               size={"small"}
               id="engName"
               name="engName"
@@ -101,6 +102,7 @@ const SimpleItemForm = ({
               helperText={formik.touched.engName && formik.errors.engName}
             />
             <TextField
+              sx={{ marginBottom: 2 }}
               className={
                 formik.touched.ruName && Boolean(formik.errors.ruName)
                   ? classes.textField
