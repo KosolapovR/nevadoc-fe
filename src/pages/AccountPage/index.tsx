@@ -1,4 +1,10 @@
-import React, {ChangeEvent, useCallback, useEffect, useRef, useState,} from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Box,
   Button,
@@ -15,25 +21,37 @@ import {
 import clone from "lodash/clone";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import CancelIcon from "@mui/icons-material/Cancel";
-import {makeStyles, withStyles, WithStyles} from "@mui/styles";
+import { makeStyles, withStyles, WithStyles } from "@mui/styles";
 import axios from "axios";
-import {URLS} from "../../api";
-import {toast} from "react-hot-toast";
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import { URLS } from "../../api";
+import { toast } from "react-hot-toast";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   ParsedProducts,
   requestParsedProductsAsync,
   selectParsedProducts,
   selectParsedProductsSum,
 } from "../../features/parsedProducts/parsedProductsSlice";
-import {createTheme, Theme} from "@mui/material/styles";
+import { createTheme, Theme } from "@mui/material/styles";
 import clsx from "clsx";
-import {AutoSizer, Column, Table, TableCellRenderer, TableHeaderProps,} from "react-virtualized";
+import {
+  AutoSizer,
+  Column,
+  Table,
+  TableCellRenderer,
+  TableHeaderProps,
+} from "react-virtualized";
 import TableCell from "@mui/material/TableCell";
-import {requestSellersAsync, selectSellers,} from "../../features/sellers/sellersSlice";
-import {requestStocksAsync, selectStocks,} from "../../features/stocks/stocksSlice";
-import {useHistory} from "react-router-dom";
-import {saveAs} from "file-saver";
+import {
+  requestSellersAsync,
+  selectSellers,
+} from "../../features/sellers/sellersSlice";
+import {
+  requestStocksAsync,
+  selectStocks,
+} from "../../features/stocks/stocksSlice";
+import { useHistory } from "react-router-dom";
+import { saveAs } from "file-saver";
 import {
   selectWidgetFileName,
   selectWidgetSeller,
@@ -54,7 +72,7 @@ const useStyles = makeStyles({
     marginRight: "8px",
   },
   container: {
-    minHeight: "556px",
+    minHeight: "498px",
     padding: "16px",
   },
   header: {

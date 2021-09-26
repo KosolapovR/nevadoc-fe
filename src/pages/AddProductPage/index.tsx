@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Autocomplete,
   FormControl,
@@ -14,25 +14,46 @@ import {
 } from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import {makeStyles} from "@mui/styles";
+import { makeStyles } from "@mui/styles";
 import BackIcon from "@mui/icons-material/ArrowBackIosNew";
 import * as yup from "yup";
-import {useFormik} from "formik";
-import {useHistory} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {requestColorsAsync, selectColors,} from "../../features/colors/colorsSlice";
-import {CreateReq, UpdateReq} from "../../types";
-import {requestSellersAsync, selectSellers,} from "../../features/sellers/sellersSlice";
-import {requestSizesAsync, selectSizes,} from "../../features/sizes/sizesSlice";
-import {requestSleevesAsync, selectSleeves,} from "../../features/sleeves/sleevesSlice";
-import {requestMaterialsAsync, selectMaterials,} from "../../features/materials/materialsSlice";
-import {requestPrintsAsync, selectPrints,} from "../../features/prints/printsSlice";
+import { useFormik } from "formik";
+import { useHistory } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
+  requestColorsAsync,
+  selectColors,
+} from "../../features/colors/colorsSlice";
+import { CreateReq, UpdateReq } from "../../types";
+import {
+  requestSellersAsync,
+  selectSellers,
+} from "../../features/sellers/sellersSlice";
+import {
+  requestSizesAsync,
+  selectSizes,
+} from "../../features/sizes/sizesSlice";
+import {
+  requestSleevesAsync,
+  selectSleeves,
+} from "../../features/sleeves/sleevesSlice";
+import {
+  requestMaterialsAsync,
+  selectMaterials,
+} from "../../features/materials/materialsSlice";
+import {
+  requestPrintsAsync,
+  selectPrints,
+} from "../../features/prints/printsSlice";
+import {
+  deleteProductsAsync,
   postProductsAsync,
   requestUniqueProductsAsync,
   selectUniqueProducts,
+  updateProductsAsync,
 } from "../../features/products/productsSlice";
-import {toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const useStyles = makeStyles({
   container: {
@@ -46,6 +67,11 @@ const useStyles = makeStyles({
   },
   button: {
     marginTop: "16px",
+    height: "40px",
+    width: "70%",
+  },
+
+  deleteButton: {
     height: "40px",
   },
 });
@@ -67,14 +93,11 @@ const AddProductPage = ({
     seller: "",
     pattern: "",
     name: "",
-    size: "",
-    color: "",
-    material: "",
-    sleeve: "",
-    print: "",
   },
 }: PropTypes) => {
   const history: any = useHistory();
+  const dispatch = useAppDispatch();
+  const classes = useStyles();
 
   const sellers = useAppSelector(selectSellers);
   const sizes = useAppSelector(selectSizes);
@@ -84,18 +107,52 @@ const AddProductPage = ({
   const prints = useAppSelector(selectPrints);
   const uniqueProducts = useAppSelector(selectUniqueProducts);
 
-  const dispatch = useAppDispatch();
-  const classes = useStyles();
+  const [currProductID, setCurrProductID] = useState("");
 
   const formik = useFormik({
     initialValues,
     enableReinitialize: true,
     validationSchema: validationSchema,
     onSubmit: (values: UpdateReq | CreateReq) => {
-      dispatch(postProductsAsync(values))
-        .unwrap()
-        .then(() => toast.success("Товар успешно добавлен"))
-        .catch((err) => toast.error(err.message));
+      if (currProductID) {
+        dispatch(updateProductsAsync({ ...values, id: currProductID }))
+          .unwrap()
+          .then(() => toast.success("Информация по товару сохранена"))
+          .catch(() => toast.error("Не удалось сохранить товар"));
+      } else {
+        dispatch(postProductsAsync(values))
+          .unwrap()
+          .then((product) => {
+            toast.success("Товар успешно добавлен");
+            if (product) {
+              const {
+                id,
+                seller,
+                pattern,
+                name,
+                size,
+                color,
+                material,
+                sleeve,
+                print,
+              } = product;
+
+              setCurrProductID(id);
+
+              formik.setValues({
+                seller,
+                pattern,
+                name,
+                size,
+                color,
+                material,
+                sleeve,
+                print,
+              });
+            }
+          })
+          .catch(() => toast.error("Не удалось добавить товар"));
+      }
     },
   });
 
@@ -110,14 +167,23 @@ const AddProductPage = ({
   }, [dispatch]);
 
   useEffect(() => {
-    if (
-      history &&
-      history.location &&
-      history.location.state &&
-      history.location.state.product
-    ) {
-      const { seller, pattern, name, size, color, material, sleeve, print } =
-        history?.location?.state?.product;
+    const product = history?.location?.state?.product;
+
+    if (product) {
+      const {
+        id,
+        seller,
+        pattern,
+        name,
+        size,
+        color,
+        material,
+        sleeve,
+        print,
+      } = product;
+
+      setCurrProductID(id);
+
       formik.setValues({
         seller,
         pattern,
@@ -129,7 +195,7 @@ const AddProductPage = ({
         print,
       });
     }
-  }, [history, formik]);
+  }, [history]);
 
   const handleSelectChange = useCallback(
     (event: SelectChangeEvent) => {
@@ -143,6 +209,27 @@ const AddProductPage = ({
     history.goBack();
   }, [history]);
 
+  const handleDeleteProduct = useCallback(() => {
+    if (currProductID) {
+      dispatch(deleteProductsAsync(currProductID))
+        .unwrap()
+        .then(() => {
+          toast.success("Товар удален");
+          formik.resetForm();
+          setCurrProductID("");
+        })
+        .catch(() => toast.error("Не удалось удалить товар"));
+    }
+  }, [dispatch, setCurrProductID, currProductID]);
+
+  const handleSelectAutocomplete = useCallback(
+    (event: any) => {
+      const { innerText } = event.target;
+      formik.setFieldValue("name", innerText);
+    },
+    [uniqueProducts]
+  );
+
   return (
     <Paper className={classes.container} variant={"outlined"}>
       <Stack
@@ -153,7 +240,9 @@ const AddProductPage = ({
         <IconButton onClick={handleGoToParsedProductPage}>
           <BackIcon color={"primary"} />
         </IconButton>
-        <Typography className={classes.fromTitle}>Добавление товара</Typography>
+        <Typography className={classes.fromTitle}>
+          {currProductID ? "Редактирование товара" : "Добавление товара"}
+        </Typography>
       </Stack>
 
       <form onSubmit={formik.handleSubmit}>
@@ -199,6 +288,8 @@ const AddProductPage = ({
         </Tooltip>
 
         <Autocomplete
+          value={formik.values.name}
+          onChange={handleSelectAutocomplete}
           freeSolo
           options={uniqueProducts.map((option) => option.name)}
           disableClearable
@@ -332,15 +423,32 @@ const AddProductPage = ({
           </Select>
         </FormControl>
 
-        <Button
-          className={classes.button}
-          fullWidth
-          color="primary"
-          variant="contained"
-          type="submit"
-        >
-          Сохранить
-        </Button>
+        {currProductID ? (
+          <Stack direction="row" justifyContent="space-between">
+            <Button
+              className={classes.button}
+              color="primary"
+              variant="contained"
+              type="submit"
+            >
+              Сохранить
+            </Button>
+            <Button
+              disabled={!currProductID}
+              className={classes.deleteButton}
+              variant="contained"
+              color="error"
+              endIcon={<DeleteIcon />}
+              onClick={handleDeleteProduct}
+            >
+              Удалить
+            </Button>
+          </Stack>
+        ) : (
+          <Button fullWidth color="primary" variant="contained" type="submit">
+            Добавить
+          </Button>
+        )}
       </form>
     </Paper>
   );

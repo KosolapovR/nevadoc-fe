@@ -1,6 +1,6 @@
 const BASE_URL = "http://localhost:8000/api";
 const URLS = {
-  getProducts: () => `${BASE_URL}/product`,
+  getProducts: (id?: string) => `${BASE_URL}/product${id ? `/${id}` : ""}`,
   getFileUpload: () => `${BASE_URL}/upload-file`,
   getFileDownload: () => `${BASE_URL}/download-file`,
   getParsedProducts: () => `${BASE_URL}/parsed`,

@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import clsx from "clsx";
 import { withStyles, WithStyles } from "@mui/styles";
-import { Theme, createTheme } from "@mui/material/styles";
-import TableCell from "@mui/material/TableCell";
-import Paper from "@mui/material/Paper";
+import { createTheme, Theme } from "@mui/material/styles";
+import { Box, CircularProgress, Paper, TableCell } from "@mui/material";
 import {
   AutoSizer,
   Column,
@@ -11,13 +10,13 @@ import {
   TableCellRenderer,
   TableHeaderProps,
 } from "react-virtualized";
+import { useHistory } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   Product,
   requestProductsAsync,
   selectProducts,
 } from "../../features/products/productsSlice";
-import { Box, CircularProgress } from "@mui/material";
 
 const styles = (theme: Theme) =>
   ({
@@ -43,6 +42,7 @@ const styles = (theme: Theme) =>
     },
     tableRowHover: {
       "&:hover": {
+        transition: "all ease-in 250ms",
         backgroundColor: theme.palette.grey[200],
       },
     },
@@ -68,7 +68,7 @@ interface Row {
 interface MuiVirtualizedTableProps extends WithStyles<typeof styles> {
   columns: readonly ColumnData[];
   headerHeight?: number;
-  onRowClick?: () => void;
+  onRowClick?: (data: any) => void;
   rowCount: number;
   rowGetter: (row: Row) => Product;
   rowHeight?: number;
@@ -133,8 +133,14 @@ class MuiVirtualizedTable extends React.PureComponent<MuiVirtualizedTableProps> 
   };
 
   render() {
-    const { classes, columns, rowHeight, headerHeight, ...tableProps } =
-      this.props;
+    const {
+      classes,
+      columns,
+      rowHeight,
+      headerHeight,
+      onRowClick,
+      ...tableProps
+    } = this.props;
     return (
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
@@ -147,6 +153,9 @@ class MuiVirtualizedTable extends React.PureComponent<MuiVirtualizedTableProps> 
             }}
             headerHeight={headerHeight!}
             className={classes.table}
+            onRowClick={(e: { [p: string]: any }) => {
+              if (onRowClick) onRowClick(e.rowData);
+            }}
             {...tableProps}
             rowClassName={this.getRowClassName}
           >
@@ -180,6 +189,7 @@ const VirtualizedTable = withStyles(styles, { defaultTheme })(
 );
 
 function ProductsPage() {
+  const history = useHistory();
   const products = useAppSelector(selectProducts);
   const dispatch = useAppDispatch();
 
@@ -187,12 +197,20 @@ function ProductsPage() {
     dispatch(requestProductsAsync());
   }, [dispatch]);
 
+  const handleGoToAddProductPage = useCallback(
+    (row) => {
+      history.push("/add-product", { product: row });
+    },
+    [history]
+  );
+
   return (
     <Paper style={{ height: "100%", width: "100%" }}>
       {products.length > 0 ? (
         <VirtualizedTable
           rowCount={products.length}
           rowGetter={({ index }) => products[index]}
+          onRowClick={handleGoToAddProductPage}
           columns={[
             {
               width: 100,
