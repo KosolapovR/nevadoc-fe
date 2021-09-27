@@ -1,4 +1,4 @@
-import {Action, configureStore, ThunkAction} from "@reduxjs/toolkit";
+import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import logger from "redux-logger";
 import productsReducer from "../features/products/productsSlice";
 import sizesReducer from "../features/sizes/sizesSlice";
@@ -10,6 +10,7 @@ import sellersReducer from "../features/sellers/sellersSlice";
 import stocksReducer from "../features/stocks/stocksSlice";
 import parsedProductsReducer from "../features/parsedProducts/parsedProductsSlice";
 import widgetReducer from "../features/widget/widgetSlice";
+import newClientsReducer from "../features/newClients/newClientsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ export const store = configureStore({
     stocks: stocksReducer,
     parsedProducts: parsedProductsReducer,
     widget: widgetReducer,
+    newClients: newClientsReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
   devTools: process.env.NODE_ENV !== "production",
