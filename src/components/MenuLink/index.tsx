@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import styles from "./styles.module.css";
-import { Link, useRouteMatch, useHistory } from "react-router-dom";
+import { useRouteMatch, useHistory } from "react-router-dom";
 
 type PropsType = {
   label: string;
@@ -10,12 +10,13 @@ type PropsType = {
 function MenuLink({ label, to }: PropsType) {
   const match = useRouteMatch({
     path: to,
+    exact: true,
   });
   const history = useHistory();
 
   const handleClick = useCallback(() => {
     history.push(to);
-  }, [history]);
+  }, [history, to]);
 
   return (
     <div

@@ -114,13 +114,17 @@ const AddProductPage = ({
     enableReinitialize: true,
     validationSchema: validationSchema,
     onSubmit: (values: UpdateReq | CreateReq) => {
+      const clearedValues = Object.fromEntries(
+        Object.entries(values).filter(([_, v]) => v !== "")
+      );
+
       if (currProductID) {
-        dispatch(updateProductsAsync({ ...values, id: currProductID }))
+        dispatch(updateProductsAsync({ ...clearedValues, id: currProductID }))
           .unwrap()
           .then(() => toast.success("Информация по товару сохранена"))
           .catch(() => toast.error("Не удалось сохранить товар"));
       } else {
-        dispatch(postProductsAsync(values))
+        dispatch(postProductsAsync(clearedValues))
           .unwrap()
           .then((product) => {
             toast.success("Товар успешно добавлен");
@@ -323,7 +327,7 @@ const AddProductPage = ({
           <Select
             labelId="size-label"
             id="size"
-            value={formik.values.size}
+            value={formik.values.size ?? ""}
             name={"size"}
             label={"Размер"}
             onChange={handleSelectChange}
@@ -344,7 +348,7 @@ const AddProductPage = ({
           <Select
             id="color"
             labelId="color-label"
-            value={formik.values.color}
+            value={formik.values.color ?? ""}
             name={"color"}
             label={"Цвет"}
             onChange={handleSelectChange}
@@ -365,7 +369,7 @@ const AddProductPage = ({
           <Select
             id="material"
             labelId="material-label"
-            value={formik.values.material}
+            value={formik.values.material ?? ""}
             name={"material"}
             label={"Материал"}
             onChange={handleSelectChange}
@@ -386,7 +390,7 @@ const AddProductPage = ({
           <Select
             id="sleeve"
             labelId="sleeve-label"
-            value={formik.values.sleeve}
+            value={formik.values.sleeve ?? ""}
             name={"sleeve"}
             label={"Рукав"}
             onChange={handleSelectChange}
@@ -408,7 +412,7 @@ const AddProductPage = ({
             id="print"
             labelId="print-label"
             name={"print"}
-            value={formik.values.print}
+            value={formik.values.print ?? ""}
             label={"Принт"}
             onChange={handleSelectChange}
           >

@@ -46,7 +46,7 @@ function App() {
       <div className={styles.app}>
         <div className={styles.appNav}>
           <nav>
-            <MenuLink label="Добавить счет" to="/account" />
+            <MenuLink label="Добавить счет" to="/" />
             <MenuLink label="Все товары" to="/products" />
             <MenuLink label="Размеры" to="/sizes" />
             <MenuLink label="Цвета" to="/colors" />
@@ -62,9 +62,6 @@ function App() {
 
         <div className={styles.appContent}>
           <Switch>
-            <Route path="/products">
-              <ProductsPage />
-            </Route>
             <Route path="/sizes">
               <SizesPage />
             </Route>
@@ -94,6 +91,12 @@ function App() {
             </Route>
             <Route path="/new-clients">
               <NewClientsPage />
+            </Route>
+            <Route path="/products">
+              <ProductsPage />
+            </Route>
+            <Route path="/">
+              <AccountPage />
             </Route>
           </Switch>
         </div>
