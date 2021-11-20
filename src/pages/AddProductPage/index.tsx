@@ -292,7 +292,7 @@ const AddProductPage = ({
         </Tooltip>
 
         <Autocomplete
-          value={formik.values.name}
+          // value={formik.values.name}
           onChange={handleSelectAutocomplete}
           freeSolo
           options={uniqueProducts.map((option) => option.name)}

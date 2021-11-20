@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useCallback } from "react";
-import { Box, Button, Paper, Stack, TableCell } from "@mui/material";
+import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
+import { Box, Button, Paper, Stack, TableCell, Switch } from "@mui/material";
 import axios from "axios";
 import { URLS } from "../../api";
 import { toast } from "react-hot-toast";
@@ -235,6 +235,18 @@ function NewClientsPage() {
     }
   };
 
+  const [onlyWithComments, setOnlyWithComments] = useState(false);
+
+  const filteredClients = useMemo(
+    () =>
+      onlyWithComments ? newClients.filter((c) => !!c.comment) : newClients,
+    [newClients, onlyWithComments]
+  );
+
+  const handleToggle = (_: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    setOnlyWithComments(checked);
+  };
+
   return (
     <>
       <Paper sx={{ p: 3, marginBottom: 2 }}>
@@ -265,10 +277,12 @@ function NewClientsPage() {
         </Stack>
       </Paper>
       <Paper style={{ height: "526px", width: "100%" }}>
-        {newClients.length > 0 ? (
+        <Switch onChange={handleToggle} value={onlyWithComments} /> Только с
+        комментарием
+        {filteredClients.length > 0 ? (
           <VirtualizedTable
-            rowCount={newClients.length}
-            rowGetter={({ index }) => newClients[index]}
+            rowCount={filteredClients.length}
+            rowGetter={({ index }) => filteredClients[index]}
             columns={[
               {
                 width: 200,

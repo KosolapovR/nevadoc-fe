@@ -2,6 +2,7 @@ import React, {
   ChangeEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -16,6 +17,8 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
+  Switch,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import clone from "lodash/clone";
@@ -74,6 +77,8 @@ const useStyles = makeStyles({
   container: {
     minHeight: "498px",
     padding: "16px",
+    paddingBottom: "35px",
+    overflow: "hidden",
   },
   header: {
     position: "sticky",
@@ -263,7 +268,7 @@ function AccountPage() {
   const dispatch = useAppDispatch();
   const styles = useStyles();
 
-  const parsedProducts = useAppSelector(selectParsedProducts);
+  const parsedProducts: ParsedProducts[] = useAppSelector(selectParsedProducts);
   const stocks = useAppSelector(selectStocks);
   const sellers = useAppSelector(selectSellers);
   const widgetSeller = useAppSelector(selectWidgetSeller);
@@ -294,13 +299,11 @@ function AccountPage() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(URLS.getFileUpload(), formData);
-    if (response.status === 200) {
+    try {
+      await axios.post(URLS.getFileUpload(), formData);
       toast.success("Файл загружен!");
-    } else {
-      toast.error(
-        `При попытке загрузки на сервер файла произошла ошибка ${response.statusText}`
-      );
+    } catch (e) {
+      toast.error(`Ошибка: ${e.response.data.error}`);
     }
   }, []);
 
@@ -358,6 +361,20 @@ function AccountPage() {
     },
     [history]
   );
+
+  const [onlyWithEmptyName, setOnlyWithEmptyName] = useState(false);
+
+  const filteredProducts = useMemo(
+    () =>
+      onlyWithEmptyName
+        ? parsedProducts.filter((c) => !c.name)
+        : parsedProducts,
+    [parsedProducts, onlyWithEmptyName]
+  );
+
+  const handleToggle = (_: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    setOnlyWithEmptyName(checked);
+  };
 
   return (
     <div style={{ position: "relative" }}>
@@ -429,15 +446,30 @@ function AccountPage() {
             </FormControl>
             {parsedProducts.length > 0 && (
               <>
-                <Button
-                  color={"success"}
-                  variant={"outlined"}
-                  onClick={downloadFile}
-                  style={{ height: "40px" }}
-                >
-                  Скачать файл
-                </Button>
-                <Typography>Сумма: {accountSum}</Typography>
+                {parsedProducts.some((p) => !p.name) ? (
+                  <Tooltip title="Не все товары опознаны">
+                    <Button
+                      color={"success"}
+                      variant={"outlined"}
+                      onClick={downloadFile}
+                      style={{ height: "40px" }}
+                      disabled={true}
+                    >
+                      Скачать файл
+                    </Button>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    color={"success"}
+                    variant={"outlined"}
+                    onClick={downloadFile}
+                    style={{ height: "40px" }}
+                  >
+                    Скачать файл
+                  </Button>
+                )}
+
+                <Typography>Сумма: {accountSum.toFixed(2)}</Typography>
               </>
             )}
           </Stack>
@@ -461,11 +493,13 @@ function AccountPage() {
         />
       </Paper>
       <Paper className={styles.container}>
-        {parsedProducts.length > 0 ? (
+        <Switch onChange={handleToggle} value={onlyWithEmptyName} /> Только не
+        заполненные
+        {filteredProducts.length > 0 ? (
           <VirtualizedTable
-            rowCount={parsedProducts.length}
+            rowCount={filteredProducts.length}
             rowGetter={({ index }) => {
-              const product = clone(parsedProducts[index]);
+              const product = clone(filteredProducts[index]);
               product.number = ++index;
               return product;
             }}
@@ -473,7 +507,7 @@ function AccountPage() {
             columns={[
               {
                 width: 50,
-                label: "N",
+                label: "№",
                 dataKey: "number",
               },
               {
