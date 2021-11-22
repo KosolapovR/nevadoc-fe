@@ -54,6 +54,7 @@ import {
 } from "../../features/products/productsSlice";
 import { toast } from "react-hot-toast";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { selectWidgetSeller } from "../../features/widget/widgetSlice";
 
 const useStyles = makeStyles({
   container: {
@@ -106,6 +107,7 @@ const AddProductPage = ({
   const materials = useAppSelector(selectMaterials);
   const prints = useAppSelector(selectPrints);
   const uniqueProducts = useAppSelector(selectUniqueProducts);
+  const widgetSeller = useAppSelector(selectWidgetSeller);
 
   const [currProductID, setCurrProductID] = useState("");
 
@@ -130,7 +132,6 @@ const AddProductPage = ({
             toast.success("Товар успешно добавлен");
             if (product) {
               const {
-                id,
                 seller,
                 pattern,
                 name,
@@ -140,8 +141,6 @@ const AddProductPage = ({
                 sleeve,
                 print,
               } = product;
-
-              setCurrProductID(id);
 
               formik.setValues({
                 seller,
@@ -159,6 +158,12 @@ const AddProductPage = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (!formik.values.seller) {
+      formik.setFieldValue("seller", widgetSeller);
+    }
+  }, [formik]);
 
   useEffect(() => {
     dispatch(requestSellersAsync());
@@ -292,7 +297,7 @@ const AddProductPage = ({
         </Tooltip>
 
         <Autocomplete
-          // value={formik.values.name}
+          value={formik.values.name}
           onChange={handleSelectAutocomplete}
           freeSolo
           options={uniqueProducts.map((option) => option.name)}
@@ -315,7 +320,6 @@ const AddProductPage = ({
               name="name"
               onChange={formik.handleChange}
               label="Наименование как в программе"
-              value={formik.values.name}
               error={formik.touched.name && Boolean(formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
             />

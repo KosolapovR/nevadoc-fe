@@ -5,7 +5,7 @@ import { URLS } from "../../api";
 import { CreateReq, UpdateReq } from "../../types";
 
 export interface Product {
-  id: string;
+  id?: string;
   seller: string;
   name: string;
   pattern: string;

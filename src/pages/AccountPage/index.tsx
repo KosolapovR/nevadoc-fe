@@ -295,6 +295,12 @@ function AccountPage() {
       });
   }, [dispatch, seller, stock]);
 
+  useEffect(() => {
+    if (stock && seller) {
+      handleParse();
+    }
+  }, [handleParse]);
+
   const uploadFile = useCallback(async (file: Blob) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -506,7 +512,7 @@ function AccountPage() {
             onRowClick={handleGoToAddProductPage}
             columns={[
               {
-                width: 50,
+                width: 60,
                 label: "№",
                 dataKey: "number",
               },
