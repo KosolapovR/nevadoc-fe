@@ -160,10 +160,10 @@ const AddProductPage = ({
   });
 
   useEffect(() => {
-    if (!formik.values.seller) {
+    if (!formik.values.seller && widgetSeller) {
       formik.setFieldValue("seller", widgetSeller);
     }
-  }, [formik]);
+  }, [formik, widgetSeller]);
 
   useEffect(() => {
     dispatch(requestSellersAsync());

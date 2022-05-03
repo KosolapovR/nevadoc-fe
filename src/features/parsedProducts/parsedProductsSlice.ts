@@ -1,8 +1,8 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
-import {RootState} from "../../app/store";
-import axios, {AxiosRequestConfig} from "axios";
-import {URLS} from "../../api";
-import {Product} from "../products/productsSlice";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { RootState } from "../../app/store";
+import axios, { AxiosRequestConfig } from "axios";
+import { URLS } from "../../api";
+import { Product } from "../products/productsSlice";
 
 export interface ParsedProducts extends Product {
   quantity: string;
@@ -49,7 +49,7 @@ export const parsedProductsSlice = createSlice({
 });
 
 export const selectParsedProducts = (state: RootState) =>
-  state.parsedProducts.data;
+  state.parsedProducts.data.map((p, index) => ({ ...p, number: index + 1 }));
 export const selectParsedProductsSum = (state: RootState) =>
   state.parsedProducts.data.reduce((sum, curr) => {
     if (!curr) {

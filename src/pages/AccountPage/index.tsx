@@ -299,7 +299,7 @@ function AccountPage() {
     if (stock && seller) {
       handleParse();
     }
-  }, [handleParse]);
+  }, [handleParse, stock, seller]);
 
   const uploadFile = useCallback(async (file: Blob) => {
     const formData = new FormData();
@@ -504,11 +504,7 @@ function AccountPage() {
         {filteredProducts.length > 0 ? (
           <VirtualizedTable
             rowCount={filteredProducts.length}
-            rowGetter={({ index }) => {
-              const product = clone(filteredProducts[index]);
-              product.number = ++index;
-              return product;
-            }}
+            rowGetter={({ index }) => clone(filteredProducts[index])}
             onRowClick={handleGoToAddProductPage}
             columns={[
               {

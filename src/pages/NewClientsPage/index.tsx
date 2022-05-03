@@ -100,7 +100,7 @@ class MuiVirtualizedTable extends React.PureComponent<MuiVirtualizedTableProps> 
           [classes.noClick]: onRowClick == null,
         })}
         variant="body"
-        style={{ height: rowHeight }}
+        style={{ height: rowHeight, overflowX: "hidden" }}
         align={
           (columnIndex != null && columns[columnIndex].numeric) || false
             ? "right"
