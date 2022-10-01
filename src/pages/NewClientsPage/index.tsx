@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Box, Button, Paper, Stack, TableCell, Switch } from "@mui/material";
 import axios from "axios";
 import { URLS } from "../../api";
@@ -20,6 +26,11 @@ import {
   TableCellRenderer,
   TableHeaderProps,
 } from "react-virtualized";
+import {
+  selectClientsLastDate,
+  getLastClientDateAsync,
+} from "../../features/clientsLastDate/clientsLastDateSlice";
+import { requestParsedProductsAsync } from "../../features/parsedProducts/parsedProductsSlice";
 
 const styles = (theme: Theme) =>
   ({
@@ -195,6 +206,7 @@ function NewClientsPage() {
   const dispatch = useAppDispatch();
 
   const newClients = useAppSelector(selectNewClients);
+  const lastClientsDate = useAppSelector(selectClientsLastDate);
 
   const handleSelectFiles = useCallback(
     (e: ChangeEvent) => {
@@ -219,6 +231,10 @@ function NewClientsPage() {
     },
     [dispatch]
   );
+
+  useEffect(() => {
+    dispatch(getLastClientDateAsync());
+  }, [dispatch]);
 
   const downloadFile = async () => {
     const response = await axios.get(URLS.getClientsDownload(), {
@@ -277,8 +293,19 @@ function NewClientsPage() {
         </Stack>
       </Paper>
       <Paper style={{ height: "526px", width: "100%" }}>
-        <Switch onChange={handleToggle} value={onlyWithComments} /> Только с
-        комментарием
+        <Stack
+          paddingX={2}
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={1}
+        >
+          <Box>
+            <Switch onChange={handleToggle} value={onlyWithComments} />
+            Только с комментарием
+          </Box>
+          {`Дата последней загрузки: ${lastClientsDate}`}
+        </Stack>
         {filteredClients.length > 0 ? (
           <VirtualizedTable
             rowCount={filteredClients.length}

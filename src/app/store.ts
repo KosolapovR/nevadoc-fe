@@ -11,6 +11,7 @@ import stocksReducer from "../features/stocks/stocksSlice";
 import parsedProductsReducer from "../features/parsedProducts/parsedProductsSlice";
 import widgetReducer from "../features/widget/widgetSlice";
 import newClientsReducer from "../features/newClients/newClientsSlice";
+import clientsLastDateReducer from "../features/clientsLastDate/clientsLastDateSlice";
 
 export const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ export const store = configureStore({
     parsedProducts: parsedProductsReducer,
     widget: widgetReducer,
     newClients: newClientsReducer,
+    clientsLastDate: clientsLastDateReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
   devTools: process.env.NODE_ENV !== "production",

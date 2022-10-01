@@ -13,6 +13,7 @@ const URLS = {
   getPrints: (id?: string) => `${BASE_URL}/print${id ? `/${id}` : ""}`,
   getSellers: (id?: string) => `${BASE_URL}/seller${id ? `/${id}` : ""}`,
   getStocks: (id?: string) => `${BASE_URL}/stock${id ? `/${id}` : ""}`,
+  getClientLastDate: () => `${BASE_URL}/client-last-date`,
 };
 
 export { URLS };
